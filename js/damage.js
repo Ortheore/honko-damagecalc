@@ -77,14 +77,14 @@ function getDamageResult(attacker, defender, move, field) {
 	}
 
 	var defAbility = defender.ability;
-	if (["Full Metal Body", "Prism Armor", "Shadow Shield"].indexOf(defAbility) === -1) {
-		if (["Mold Breaker", "Teravolt", "Turboblaze"].indexOf(attacker.ability) !== -1) {
-			defAbility = "";
-			description.attackerAbility = attacker.ability;
-		}
-		if (["Menacing Moonraze Maelstrom", "Moongeist Beam", "Photon Geyser", "Searing Sunraze Smash", "Sunsteel Strike"].indexOf(move.name) !== -1) {
-			defAbility = "";
-		}
+	var defenderIgnoresAbility = ["Full Metal Body", "Prism Armor", "Shadow Shield"].indexOf(defAbility) !== -1;
+	var attackerIgnoresAbility = ["Mold Breaker", "Teravolt", "Turboblaze"].indexOf(attacker.ability) !== -1;
+	if (attackerIgnoresAbility && !defenderIgnoresAbility) {
+		defAbility = "";
+		description.attackerAbility = attacker.ability;
+	}
+	if (["Light That Burns the Sky", "Menacing Moonraze Maelstrom", "Moongeist Beam", "Photon Geyser", "Searing Sunraze Smash", "Sunsteel Strike"].indexOf(move.name) !== -1) {
+		defAbility = "";
 	}
 
 	var isCritical = (move.isZ && move.isCrit) || ((move.isCrit && ["Battle Armor", "Shell Armor"].indexOf(defAbility) === -1 || attacker.ability === "Merciless" && defender.status.indexOf("Poisoned") !== -1) && move.usedTimes === 1);
@@ -122,8 +122,9 @@ function getDamageResult(attacker, defender, move, field) {
 	var isGalvanize = false;
 	var isLiquidVoice = false;
 	var isNormalize = false;
+	var noTypeChange = ["Revelation Dance", "Judgement", "Nature Power", "Techo Blast", "Multi Attack", "Natural Gift", "Weather Ball"].indexOf(move.name) !== -1;
 
-	if (!move.isZ) {
+	if (!move.isZ && !noTypeChange) {
 		isAerilate = attacker.ability === "Aerilate" && move.type === "Normal";
 		isPixilate = attacker.ability === "Pixilate" && move.type === "Normal";
 		isRefrigerate = attacker.ability === "Refrigerate" && move.type === "Normal";
@@ -229,7 +230,14 @@ function getDamageResult(attacker, defender, move, field) {
 	}
 
 	if (move.name === "Guardian of Alola") {
-		var zLostHP = field.isProtected ? Math.floor(defender.curHP / 4) : Math.floor(defender.curHP * 3 / 4);
+		var zLostHP = Math.floor(defender.curHP * 3 / 4);
+		if (field.isProtected) {
+			if (attacker.item.indexOf(" Z") !== -1) {
+				zLostHP = Math.ceil(zLostHP / 4 - 0.5);
+			} else {
+				alert('Although only possible while hacking, Z-Moves fully damage through protect without a Z-Crystal');
+			}
+		}
 		 return {"damage": [zLostHP], "description": buildDescription(description)};
 	}
 
@@ -437,7 +445,7 @@ function getDamageResult(attacker, defender, move, field) {
 		description.isHelpingHand = true;
 	}
 
-	if (isAerilate || isPixilate || isRefrigerate || isGalvanize) {
+	if (isAerilate || isPixilate || isRefrigerate || isGalvanize || isNormalize) {
 		bpMods.push(gen >= 7 ? 0x1333 : 0x14CD);
 		description.attackerAbility = attacker.ability;
 	} else if ((attacker.ability === "Mega Launcher" && move.isPulse) ||
@@ -478,7 +486,7 @@ function getDamageResult(attacker, defender, move, field) {
 	var attack;
 	var attackSource = move.name === "Foul Play" ? defender : attacker;
 	if (move.usesHighestAttackStat) {
-		move.category = attackSource.stats[AT] >= attackSource.stats[SA] ? "Physical" : "Special";
+		move.category = attackSource.stats[AT] > attackSource.stats[SA] ? "Physical" : "Special";
 	}
 	var attackStat = move.category === "Physical" ? AT : SA;
 	description.attackEVs = attacker.evs[attackStat] +
@@ -745,7 +753,7 @@ function getDamageResult(attacker, defender, move, field) {
 		var usedWhiteHerb = false;
 		var dropCount = attacker.boosts[attackStat];
 		for (var times = 0; times < move.usedTimes; times++) {
-			var newAttack = getModifiedStat(attacker.rawStats[attackStat], dropCount);
+			var newAttack = getModifiedStat(attack, dropCount);
 			var damageMultiplier = 0;
 			damage = damage.map(function (affectedAmount) {
 				if (times) {
@@ -893,14 +901,13 @@ function checkIntimidate(source, target) {
 }
 
 function checkStatBoost(p1, p2) {
-	var stat;
 	if ($('#StatBoostL').prop("checked")) {
-		for (stat in p1.boosts) {
+		for (var stat in p1.boosts) {
 			p1.boosts[stat] = Math.min(6, p1.boosts[stat] + 1);
 		}
 	}
 	if ($('#StatBoostR').prop("checked")) {
-		for (stat in p2.boosts) {
+		for (var stat in p2.boosts) {
 			p2.boosts[stat] = Math.min(6, p2.boosts[stat] + 1);
 		}
 	}

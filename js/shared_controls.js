@@ -395,8 +395,20 @@ $(".set-selector").change(function () {
 		}
 		var formeObj = $(this).siblings().find(".forme").parent();
 		itemObj.prop("disabled", false);
+		var baseForme;
+		if (pokemon.isAlternateForme) {
+			// try to find the base forme name by chopping off everything after the last dash
+			var baseFormeName = pokemonName.substring(0, pokemonName.lastIndexOf('-'));
+			// special case: -Mega-X and -Mega-Y
+			if (baseFormeName.substring(baseFormeName.lastIndexOf('-')) === '-Mega') {
+				baseFormeName = baseFormeName.substring(0, baseFormeName.lastIndexOf('-'));
+			}
+			baseForme = pokedex[baseFormeName];
+		}
 		if (pokemon.formes) {
 			showFormes(formeObj, setName, pokemonName, pokemon);
+		} else if (baseForme && baseForme.formes) {
+			showFormes(formeObj, setName, pokemonName, baseForme);
 		} else {
 			formeObj.hide();
 		}
@@ -422,7 +434,8 @@ function showFormes(formeObj, setName, pokemonName, pokemon) {
 	            (pokemonName === "Groudon" && set.item.indexOf("Red Orb") !== -1) ||
 	            (pokemonName === "Kyogre" && set.item.indexOf("Blue Orb") !== -1) ||
 	            (pokemonName === "Meloetta" && set.moves.indexOf("Relic Song") !== -1) ||
-	            (pokemonName === "Rayquaza" && set.moves.indexOf("Dragon Ascent") !== -1)) {
+				(pokemonName === "Rayquaza" && set.moves.indexOf("Dragon Ascent") !== -1) ||
+				(pokemonName === "Greninja-Ash" && set.ability === "Battle Bond")) {
 				defaultForme = 1;
 			} else if (set.item.indexOf('ite Y') !== -1) {
 				defaultForme = 2;
@@ -456,8 +469,11 @@ $(".forme").change(function () {
 		baseStat.keyup();
 	}
 	var chosenSet = setdex[pokemonName][setName];
-	if (abilities.indexOf(altForme.ab) !== -1) {
+	var greninjaSet = $(this).val().indexOf("Greninja") !== -1;
+	if (abilities.indexOf(altForme.ab) !== -1 && !greninjaSet) {
 		container.find(".ability").val(altForme.ab);
+	} else if (greninjaSet) {
+		$(this).parent().find(".ability");
 	} else {
 		container.find(".ability").val(chosenSet.ability);
 	}
@@ -679,8 +695,11 @@ function Side(format, terrain, weather, isGravity, isSR, spikes, isReflect, isLi
 
 var gen, genWasChanged, notation, pokedex, setdex, typeChart, moves, abilities, items, STATS, calcHP, calcStat;
 $(".gen").change(function () {
-	var gen = ~~$(this).val();
-	var genWasChanged = true;
+	/*eslint-disable */
+	gen = ~~$(this).val();
+	genWasChanged = true;
+	/* eslint-enable */
+	// declaring these variables with var here makes z moves not work; TODO
 	switch (gen) {
 	case 1:
 		pokedex = POKEDEX_RBY;
@@ -851,13 +870,13 @@ function getSetOptions(sets) {
 	return setOptions;
 }
 
-function getSelectOptions(arr, sort) {
+function getSelectOptions(arr, sort, defaultOption) {
 	if (sort) {
 		arr.sort();
 	}
 	var r = '';
 	for (var i = 0; i < arr.length; i++) {
-		r += '<option value="' + arr[i] + '">' + arr[i] + '</option>';
+		r += '<option value="' + arr[i] + '" ' + (defaultOption === i ? 'selected' : '') + '>' + arr[i] + '</option>';
 	}
 	return r;
 }
