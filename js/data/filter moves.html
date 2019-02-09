@@ -3,17 +3,15 @@
 	<head>
 	</head>
 	<body>
-		<script src='move_data.js'></script>
 		<script src='jqueryForFilter.js'></script>
+		<script src='move_data.js'></script>
 		<p id="p">
 		</p>
 		<script>
-			var attacks=[];
 			for(moveName in MOVES_SM){
-				alert(MOVES_SM[moveName].bp);
-				if(MOVES_SM[moveName].bp>0) attacks.push(MOVES_SM[moveName]);
+				if(MOVES_SM[moveName].bp===0) delete MOVES_SM[moveName];
 			}
-			document.getElementById("p").innerText=JSON.stringify(attacks);
+			document.getElementById("p").innerText=JSON.stringify(MOVES_SM);
 		</script>
 	</body>
 </html>

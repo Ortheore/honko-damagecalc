@@ -1,21 +1,3 @@
-OK wtf, everything's stopped working and I'm not sure why
-1v1 seems to work fine
-One v all returns this error when I try to calculate:
-ReferenceError: mode is not defined[Learn More] honkalculate_controls.js:75:5
-calculate
-file:///C:/Users/Matt Washer/Documents/Honkalculator/js/honkalculate_controls.js?:75:5
-placeHonkBsBtn/<
-file:///C:/Users/Matt Washer/Documents/Honkalculator/js/honkalculate_controls.js?:237:3
-dispatch
-file:///C:/Users/Matt Washer/Documents/Honkalculator/js/jquery-1.9.1.min.js:3:28285
-add/v.handle
-file:///C:/Users/Matt Washer/Documents/Honkalculator/js/jquery-1.9.1.min.js:3:25025
-
-And filter moves seems to not recognise jquery, even though it seems to load the script just fine
-
-NOTE: Recently merged from official branch, some things may have been changed? Should probably review
-
-
 Things to do:
 Really need to add JSON functionality to the calculator
 Create resources for people to plug into the calculator (just txt file to be c/p'd)
