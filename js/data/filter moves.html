@@ -11,7 +11,13 @@
 			for(moveName in MOVES_SM){
 				if(MOVES_SM[moveName].bp===0) delete MOVES_SM[moveName];
 			}
-			document.getElementById("p").innerText=JSON.stringify(MOVES_SM);
+			var attacks=Object.keys(MOVES_SM);
+			var today=new Date();
+			var object={
+				"attacks":attacks,
+				"date":today.toUTCString()
+			}
+			document.getElementById("p").innerText=JSON.stringify(object);
 		</script>
 	</body>
 </html>

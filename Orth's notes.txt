@@ -2,3 +2,7 @@ Things to do:
 Really need to add JSON functionality to the calculator
 Create resources for people to plug into the calculator (just txt file to be c/p'd)
 Test more thoroughly. I honestly don't remember where I got to before because it's been a while since I worked on this. Maybe this'll be an opportunity to practice writing tests, because I've done a shoddy job of that in the past. At the very least, I haven't tested this for extremely large c/ps.
+
+Attack filter- all I really needs is a list of attack names...
+
+NOTE- will want to transpose my stat parser into this calc as part of the custom tier functionality. Once I polish that up a little, consider submitting a pull request
